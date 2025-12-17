@@ -9,9 +9,9 @@
       "configureZshAsDefaultShell": "true"
     },
     "ghcr.io/devcontainers/features/java:1": {
-        "version": "none",
-        "installMaven": "true",
-        "mavenVersion": "latest"
+      "version": "17",          // CHANGED: Installs Java 17 (Standard choice)
+      "installMaven": "true",
+      "mavenVersion": "latest"
     },
     "ghcr.io/devcontainers/features/node:1": {
         "version": "lts"
