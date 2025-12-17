@@ -1,0 +1,15 @@
+/shelf/
+/workspace.xml
+
+/httpRequests/
+
+/dataSources/
+/dataSources.local.xml
+
+target/
+
+.idea/
+*.iml
+
+*.class
+*.lst
