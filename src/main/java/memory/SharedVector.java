@@ -92,8 +92,12 @@ public class SharedVector {
 
     public double dot(SharedVector other) {
         // TODO: compute dot product (row · column)
-        if(length() != other.length()) throw new IllegalArgumentException("vectors not the same length");
-        if(getOrientation() == other.getOrientation()) throw new IllegalArgumentException("vectors with same orientation cannot be multiplied");
+        {//errors
+        if(length() != other.length())
+            throw new IllegalArgumentException("vectors not the same length");
+        if(getOrientation()==VectorOrientation.COLUMN_MAJOR || other.getOrientation()==VectorOrientation.ROW_MAJOR)
+            throw new IllegalArgumentException("vectors with same orientation cannot be multiplied");
+        }
         readLock();
         other.readLock();
         double val = 0.0;
@@ -107,38 +111,28 @@ public class SharedVector {
 
     public void vecMatMul(SharedMatrix matrix) {
         // TODO: compute row-vector × matrix
-        if(getOrientation()==VectorOrientation.ROW_MAJOR) {
-            if(matrix.getOrientation()==VectorOrientation.ROW_MAJOR) {
-                if(length() != matrix.length()) throw new IllegalArgumentException("matrix not of fitting dimentions for multiplication");
-            }
-            else {
-                if(length() != matrix.get(0).length()) throw new IllegalArgumentException("matrix not of fitting dimentions for multiplication");
-            }
+        {//errors
+        if(getOrientation()!=VectorOrientation.ROW_MAJOR)
+            throw new IllegalAccessError("this is not a row vector");
+        if(matrix.getOrientation()==getOrientation())
+            if(length()!=matrix.length())
+                throw new IllegalArgumentException("matrix and vector arnt of compatable size for multiplication");
+        if(length()!=matrix.get(0).length())
+            throw new IllegalArgumentException("matrix and vector arnt of compatable size for multiplication");
         }
-        else {
-            if(matrix.getOrientation()==VectorOrientation.ROW_MAJOR) {
-                if(length() != matrix.get(0).length()) throw new IllegalArgumentException("matrix not of fitting dimentions for multiplication");
-            }
-            else {
-                if(length() != matrix.length()) throw new IllegalArgumentException("matrix not of fitting dimentions for multiplication");
-            }
-        }
-
+        
         double[][] copyMat = matrix.readRowMajor();
+        if(matrix.getOrientation()==VectorOrientation.ROW_MAJOR)
+            matrix.loadColumnMajor(copyMat);
+        
+        double[] vec = new double[length()];
         readLock();
-        double[] copyVec = vector;
-        boolean row = VectorOrientation.ROW_MAJOR == orientation;
-        double[] res = new double[vector.length];
-        readUnlock();
-        for(int i=0;i<copyMat.length;i++) {
-            for(int j=0;j<copyMat[i].length;j++) {
-                if(row)
-                    res[i]+=copyMat[j][i]*copyVec[j];
-                res[i]+=copyMat[i][j]*copyVec[j];
-            }
+        for(int i=0;i<length();i++) {
+            vec[i] = dot(matrix.get(i));
         }
+        readUnlock();
         writeLock();
-        vector = res;
+        vector = vec;
         writeUnlock();
     }
 }

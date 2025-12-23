@@ -4,6 +4,7 @@ import parser.*;
 import memory.*;
 import scheduling.*;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class LinearAlgebraEngine {
@@ -19,7 +20,6 @@ public class LinearAlgebraEngine {
 
     public ComputationNode run(ComputationNode computationRoot) {
         // TODO: resolve computation tree step by step until final matrix is produced
-        
         return null;
     }
 
@@ -30,22 +30,61 @@ public class LinearAlgebraEngine {
 
     public List<Runnable> createAddTasks() {
         // TODO: return tasks that perform row-wise addition
-        return null;
+        leftMatrix.loadRowMajor(leftMatrix.readRowMajor());
+        rightMatrix.loadRowMajor(rightMatrix.readRowMajor());
+        if(leftMatrix.length()!=rightMatrix.length() || leftMatrix.get(0).length()!=rightMatrix.get(0).length())
+            throw new IllegalArgumentException("matricies are not of the same size");
+        List<Runnable> lst = new LinkedList<>();
+        Runnable e;
+        for(int i=0;i<leftMatrix.length();i++) {
+            int index = i;
+            e = () -> {leftMatrix.get(index).add(rightMatrix.get(index));};
+            lst.add(e);
+        }
+        return lst;
     }
 
     public List<Runnable> createMultiplyTasks() {
         // TODO: return tasks that perform row × matrix multiplication
-        return null;
+        leftMatrix.loadRowMajor(leftMatrix.readRowMajor());
+        rightMatrix.loadColumnMajor(rightMatrix.readRowMajor()); //temporary
+        if(leftMatrix.get(0).length()!=rightMatrix.get(0).length())
+            throw new IllegalArgumentException("matricies are not of compatable size for multiplication");
+        List<Runnable> lst = new LinkedList<>();
+        Runnable e;
+        for(int i=0;i<leftMatrix.length();i++) {
+            for(int j=0;j<rightMatrix.length();j++) {
+                int left = i;
+                int right = j;
+                e = () -> {leftMatrix.get(left).dot(rightMatrix.get(right));};
+                lst.add(e);
+            }
+        }
+        return lst;
     }
 
     public List<Runnable> createNegateTasks() {
         // TODO: return tasks that negate rows
-        return null;
+        List<Runnable> lst = new LinkedList<>();
+        Runnable e;
+        for(int i=0;i<rightMatrix.length();i++) {
+            int index = i;
+            e = () -> {rightMatrix.get(index).negate();};
+            lst.add(e);
+        }
+        return lst;
     }
 
     public List<Runnable> createTransposeTasks() {
         // TODO: return tasks that transpose rows
-        return null;
+        List<Runnable> lst = new LinkedList<>();
+        Runnable e;
+        for(int i=0;i<rightMatrix.length();i++) {
+            int index = i;
+            e = () -> {rightMatrix.get(index).transpose();};
+            lst.add(e);
+        }
+        return lst;
     }
 
     public String getWorkerReport() {
