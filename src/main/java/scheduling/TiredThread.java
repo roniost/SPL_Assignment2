@@ -59,10 +59,14 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
         if (!alive.get()) {
             throw new IllegalStateException("Worker is shutting down");
         }
-        if (!handoff.offer(task)) {
-            throw new IllegalStateException("Worker is busy");
+        try {
+            // החלפנו את add (שזורק שגיאה) ב-put (שמחכה בסבלנות)
+            handoff.put(task); 
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            // זו שגיאה לגיטימית רק אם מכבים את המערכת
+            throw new IllegalStateException("Worker interrupted while accepting task");
         }
-        this.handoff.add(task);
     }
 
     /**
