@@ -53,12 +53,8 @@ public class LinearAlgebraEngine {
         List<Runnable> lst = new LinkedList<>();
         Runnable e;
         for(int i=0;i<leftMatrix.length();i++) {
-            for(int j=0;j<rightMatrix.length();j++) {
-                int left = i;
-                int right = j;
-                e = () -> {leftMatrix.get(left).dot(rightMatrix.get(right));};
-                lst.add(e);
-            }
+            int index = i;
+            e = () -> leftMatrix.get(index).vecMatMul(rightMatrix);
         }
         return lst;
     }
