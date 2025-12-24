@@ -12,24 +12,75 @@ public class TiredExecutor {
     private final AtomicInteger inFlight = new AtomicInteger(0);
 
     public TiredExecutor(int numThreads) {
-        // TODO
-        workers = null; // placeholder
+        this.workers= new TiredThread[numThreads];
+        for (int i = 0; i < numThreads; i++) {
+            double fatigueFactor = Math.random()+0.5; 
+            workers[i] = new TiredThread(i, fatigueFactor);
+            idleMinHeap.add(workers[i]);
+            workers[i].start(); 
+        }
     }
 
     public void submit(Runnable task) {
-        // TODO
+        synchronized(this){
+            while (idleMinHeap.isEmpty()) { // wait until a worker is free
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return; // needed?
+                }
+            }
+            TiredThread worker = idleMinHeap.poll();
+            inFlight.incrementAndGet(); //יש חשמל באוויר
+            Runnable wrappedTask = () -> {
+                try {
+                    task.run();
+                } finally {
+                    synchronized(this) {
+                        idleMinHeap.add(worker);
+                        inFlight.decrementAndGet(); //החשמל נגמר
+                        TiredExecutor.this.notifyAll(); 
+                    }
+                }
+            };
+            worker.newTask(wrappedTask);
+        }
     }
 
     public void submitAll(Iterable<Runnable> tasks) {
-        // TODO: submit tasks one by one and wait until all finish
+        for (Runnable task : tasks) {
+            submit(task);
+        }
+
+        synchronized(this) {
+            while (inFlight.get() > 0) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
     }
 
     public void shutdown() throws InterruptedException {
-        // TODO
+        for (TiredThread worker : workers) {
+           if (worker!=null) {
+            worker.shutdown();
+            
+           }
+        }
     }
 
     public synchronized String getWorkerReport() {
-        // TODO: return readable statistics for each worker
-        return null;
+        StringBuilder report = new StringBuilder();
+        for (TiredThread worker : workers) {
+            report.append("Worker ").append(worker.getId())
+                  .append(" - Fatigue: ").append(worker.getFatigue())
+                  .append("- Idle:").append(worker.getTimeIdle())
+                  .append("ms - Work:").append(worker.getTimeUsed()).append("ms\n");
+    }
+    return report.toString();
     }
 }
