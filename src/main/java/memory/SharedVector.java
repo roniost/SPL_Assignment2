@@ -20,10 +20,7 @@ public class SharedVector {
         // TODO: return element at index (read-locked)
         if(index>=vector.length || index<0)
             throw new IllegalArgumentException("index out of bounds");
-        readLock();
-        double val = vector[index];
-        readUnlock();
-        return val;
+        return vector[index];
     }
 
     public int length() {
@@ -59,10 +56,14 @@ public class SharedVector {
     public void transpose() {
         // TODO: transpose vector
         writeLock();
-        if(orientation == VectorOrientation.ROW_MAJOR)
-            orientation = VectorOrientation.COLUMN_MAJOR;
-        orientation = VectorOrientation.ROW_MAJOR;
-        writeUnlock();
+        try {
+            if(orientation == VectorOrientation.ROW_MAJOR)
+                orientation = VectorOrientation.COLUMN_MAJOR;
+            orientation = VectorOrientation.ROW_MAJOR;
+        }
+        finally {
+            writeUnlock();
+        }
     }
 
     public void add(SharedVector other) {
@@ -71,6 +72,7 @@ public class SharedVector {
             throw new IllegalArgumentException("vectors not the same length");
         readLock();
         other.readLock();
+        try {
         double[] res = new double[vector.length];
         for(int i=0;i<vector.length;i++)
             res[i] = get(i) + other.get(i);
@@ -79,15 +81,24 @@ public class SharedVector {
         writeLock();
         vector = res;
         writeUnlock();
+        }
+        finally {
+            other.readUnlock();
+            readUnlock();
+            writeUnlock();
+        }
     }
 
     public void negate() {
         // TODO: negate vector
         writeLock();
-        for(int i=0;i<vector.length;i++) {
+        try {
+        for(int i=0;i<vector.length;i++)
             vector[i] = -vector[i];
         }
-        writeUnlock();
+        finally {
+            writeUnlock();
+        }
     }
 
     public double dot(SharedVector other) {
@@ -100,13 +111,19 @@ public class SharedVector {
         }
         readLock();
         other.readLock();
-        double val = 0.0;
-        for(int i=0;i<vector.length;i++) {
-            val += get(i)*other.get(i);
+        try {
+            double val = 0.0;
+            for(int i=0;i<vector.length;i++) {
+                val += get(i)*other.get(i);
+            }
+            other.readUnlock();
+            readUnlock();
+            return val;
         }
-        other.readUnlock();
-        readUnlock();
-        return val;
+        finally {
+            other.readUnlock();
+            readUnlock();
+        }
     }
 
     public void vecMatMul(SharedMatrix matrix) {
@@ -121,18 +138,24 @@ public class SharedVector {
             throw new IllegalArgumentException("matrix and vector arnt of compatable size for multiplication");
         }
         
-        double[][] copyMat = matrix.readRowMajor();
-        if(matrix.getOrientation()==VectorOrientation.ROW_MAJOR)
-            matrix.loadColumnMajor(copyMat);
-        
-        double[] vec = new double[length()];
-        readLock();
-        for(int i=0;i<length();i++) {
-            vec[i] = dot(matrix.get(i));
+        try {
+            double[][] copyMat = matrix.readRowMajor();
+            if(matrix.getOrientation()==VectorOrientation.ROW_MAJOR)
+                matrix.loadColumnMajor(copyMat);
+
+            double[] vec = new double[length()];
+            readLock();
+            for(int i=0;i<length();i++) {
+                vec[i] = dot(matrix.get(i));
+            }
+            readUnlock();
+            writeLock();
+            vector = vec;
+            writeUnlock();
         }
-        readUnlock();
-        writeLock();
-        vector = vec;
-        writeUnlock();
+        finally {
+            readUnlock();
+            writeUnlock();
+        }
     }
 }

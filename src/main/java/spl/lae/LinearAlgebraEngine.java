@@ -26,6 +26,12 @@ public class LinearAlgebraEngine {
     public void loadAndCompute(ComputationNode node) {
         // TODO: load operand matrices
         // TODO: create compute tasks & submit tasks to executor
+        if(node.getNodeType()==ComputationNodeType.MATRIX)
+            throw new IllegalArgumentException("node is solved");
+
+        if(node.getNodeType()==ComputationNodeType.ADD) {
+            
+        }
     }
 
     public List<Runnable> createAddTasks() {
@@ -85,6 +91,6 @@ public class LinearAlgebraEngine {
 
     public String getWorkerReport() {
         // TODO: return summary of worker activity
-        return null;
+        return executor.getWorkerReport();
     }
 }
