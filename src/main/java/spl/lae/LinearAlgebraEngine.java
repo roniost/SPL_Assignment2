@@ -39,7 +39,7 @@ public class LinearAlgebraEngine {
         
         List<Runnable> lst;
         switch (node.getNodeType()) {
-            case ComputationNodeType.ADD:
+            case ADD:
                 if(node.getChildren().size()<2)
                     throw new IllegalArgumentException("add node has less than 2 operands");
                 leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
@@ -49,7 +49,7 @@ public class LinearAlgebraEngine {
                     executor.submit(e);
                 node.resolve(leftMatrix.readRowMajor());
             
-            case ComputationNodeType.MULTIPLY:
+            case MULTIPLY:
                 if(node.getChildren().size()<2)
                     throw new IllegalArgumentException("mult node has less than 2 operands");
                 leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
@@ -59,7 +59,7 @@ public class LinearAlgebraEngine {
                     executor.submit(e);
                 node.resolve(leftMatrix.readRowMajor());
             
-            case ComputationNodeType.NEGATE:
+            case NEGATE:
                 if(node.getChildren().size()>1)
                     throw new IllegalArgumentException("negation node has more than 1 operands");
                 leftMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());
@@ -68,7 +68,7 @@ public class LinearAlgebraEngine {
                     executor.submit(e);
                 node.resolve(leftMatrix.readRowMajor());
             
-            case ComputationNodeType.TRANSPOSE:
+            case TRANSPOSE:
                 if(node.getChildren().size()>1)
                     throw new IllegalArgumentException("transpose node has more than 1 operands");
                 leftMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());
@@ -77,7 +77,7 @@ public class LinearAlgebraEngine {
                     executor.submit(e);
                 node.resolve(leftMatrix.readRowMajor());
 
-            case ComputationNodeType.MATRIX:
+            case MATRIX:
                 throw new IllegalArgumentException("node is already solved");
         }
     }
