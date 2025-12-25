@@ -151,7 +151,6 @@ public class SharedVector {
             readUnlock();
             writeLock();
             vector = vec;
-            writeUnlock();
         }
         finally {
             readUnlock();

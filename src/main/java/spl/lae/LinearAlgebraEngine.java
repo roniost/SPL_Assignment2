@@ -20,17 +20,65 @@ public class LinearAlgebraEngine {
 
     public ComputationNode run(ComputationNode computationRoot) {
         // TODO: resolve computation tree step by step until final matrix is produced
-        return null;
+        ComputationNode n;
+        while(computationRoot.getNodeType()!=ComputationNodeType.MATRIX) {
+            n = computationRoot.findResolvable();
+            if(n.getChildren().size()>2)
+                n.associativeNesting();
+            else
+                loadAndCompute(n);
+        }
+        return computationRoot;
     }
 
     public void loadAndCompute(ComputationNode node) {
         // TODO: load operand matrices
         // TODO: create compute tasks & submit tasks to executor
-        if(node.getNodeType()==ComputationNodeType.MATRIX)
-            throw new IllegalArgumentException("node is solved");
-
-        if(node.getNodeType()==ComputationNodeType.ADD) {
+        if(node.getChildren().size()>2)
+            throw new IllegalArgumentException("node has more than 2 operands");
+        
+        List<Runnable> lst;
+        switch (node.getNodeType()) {
+            case ComputationNodeType.ADD:
+                if(node.getChildren().size()<2)
+                    throw new IllegalArgumentException("add node has less than 2 operands");
+                leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
+                rightMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());
+                lst = createAddTasks();
+                for(Runnable e : lst)
+                    executor.submit(e);
+                node.resolve(leftMatrix.readRowMajor());
             
+            case ComputationNodeType.MULTIPLY:
+                if(node.getChildren().size()<2)
+                    throw new IllegalArgumentException("mult node has less than 2 operands");
+                leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
+                rightMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());
+                lst = createMultiplyTasks();
+                for(Runnable e : lst)
+                    executor.submit(e);
+                node.resolve(leftMatrix.readRowMajor());
+            
+            case ComputationNodeType.NEGATE:
+                if(node.getChildren().size()>1)
+                    throw new IllegalArgumentException("negation node has more than 1 operands");
+                leftMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());
+                lst = createNegateTasks();
+                for(Runnable e : lst)
+                    executor.submit(e);
+                node.resolve(leftMatrix.readRowMajor());
+            
+            case ComputationNodeType.TRANSPOSE:
+                if(node.getChildren().size()>1)
+                    throw new IllegalArgumentException("transpose node has more than 1 operands");
+                leftMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());
+                lst = createTransposeTasks();
+                for(Runnable e : lst)
+                    executor.submit(e);
+                node.resolve(leftMatrix.readRowMajor());
+
+            case ComputationNodeType.MATRIX:
+                throw new IllegalArgumentException("node is already solved");
         }
     }
 
@@ -53,7 +101,7 @@ public class LinearAlgebraEngine {
     public List<Runnable> createMultiplyTasks() {
         // TODO: return tasks that perform row × matrix multiplication
         leftMatrix.loadRowMajor(leftMatrix.readRowMajor());
-        rightMatrix.loadColumnMajor(rightMatrix.readRowMajor()); //temporary
+        rightMatrix.loadColumnMajor(rightMatrix.readRowMajor());
         if(leftMatrix.get(0).length()!=rightMatrix.get(0).length())
             throw new IllegalArgumentException("matricies are not of compatable size for multiplication");
         List<Runnable> lst = new LinkedList<>();
@@ -61,6 +109,7 @@ public class LinearAlgebraEngine {
         for(int i=0;i<leftMatrix.length();i++) {
             int index = i;
             e = () -> leftMatrix.get(index).vecMatMul(rightMatrix);
+            lst.add(e);
         }
         return lst;
     }
@@ -69,9 +118,9 @@ public class LinearAlgebraEngine {
         // TODO: return tasks that negate rows
         List<Runnable> lst = new LinkedList<>();
         Runnable e;
-        for(int i=0;i<rightMatrix.length();i++) {
+        for(int i=0;i<leftMatrix.length();i++) {
             int index = i;
-            e = () -> {rightMatrix.get(index).negate();};
+            e = () -> {leftMatrix.get(index).negate();};
             lst.add(e);
         }
         return lst;
@@ -81,9 +130,9 @@ public class LinearAlgebraEngine {
         // TODO: return tasks that transpose rows
         List<Runnable> lst = new LinkedList<>();
         Runnable e;
-        for(int i=0;i<rightMatrix.length();i++) {
+        for(int i=0;i<leftMatrix.length();i++) {
             int index = i;
-            e = () -> {rightMatrix.get(index).transpose();};
+            e = () -> {leftMatrix.get(index).transpose();};
             lst.add(e);
         }
         return lst;
