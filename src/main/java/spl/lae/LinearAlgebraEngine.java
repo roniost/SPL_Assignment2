@@ -62,7 +62,7 @@ public class LinearAlgebraEngine {
             case NEGATE:
                 if(node.getChildren().size()>1)
                     throw new IllegalArgumentException("negation node has more than 1 operands");
-                leftMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());
+                leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
                 lst = createNegateTasks();
                 for(Runnable e : lst)
                     executor.submit(e);
@@ -71,7 +71,7 @@ public class LinearAlgebraEngine {
             case TRANSPOSE:
                 if(node.getChildren().size()>1)
                     throw new IllegalArgumentException("transpose node has more than 1 operands");
-                leftMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());
+                leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
                 lst = createTransposeTasks();
                 for(Runnable e : lst)
                     executor.submit(e);
