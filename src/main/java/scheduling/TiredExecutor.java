@@ -76,7 +76,7 @@ public class TiredExecutor {
     public synchronized String getWorkerReport() {
         StringBuilder report = new StringBuilder();
         for (TiredThread worker : workers) {
-            report.append("Worker ").append(worker.getId())
+            report.append("Worker ").append(worker.getWorkerId())
                   .append(" - Fatigue: ").append(worker.getFatigue())
                   .append("- Idle:").append(worker.getTimeIdle())
                   .append("ms - Work:").append(worker.getTimeUsed()).append("ms\n");
