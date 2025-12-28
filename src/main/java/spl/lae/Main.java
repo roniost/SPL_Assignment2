@@ -1,7 +1,9 @@
 package spl.lae;
 import java.io.IOException;
 
-import parser.*;
+import parser.ComputationNode;
+import parser.InputParser;
+import parser.OutputWriter;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -25,9 +27,9 @@ public class Main {
         ComputationNode resultNode = engine.run(rootNode);
 
         double[][] resultMatrix = resultNode.getMatrix();
-        OutputWriter.writeMatrixToFile(resultMatrix, outputFile);
+        OutputWriter.write(resultMatrix, outputFile);
         System.out.println("Computation completed successfully. Result written to " + outputFile);
-      } catch (ParseException | IOException | IllegalArgumentException e) {
+      } catch (IOException | IllegalArgumentException e) {
         System.out.println("Error: " + e.getMessage());
         try {
             OutputWriter.write(e.getMessage(), outputFile);
@@ -37,16 +39,16 @@ public class Main {
             }
       }catch (Exception e) {
             e.printStackTrace();
-      } finally {
-        if (engine != null) {
-            try {
-                engine.shutdown();
-            } catch (InterruptedException e) {
-                System.err.println("Failed to shut down the executor.");
-                Thread.currentThread().interrupt();
-            }
-        }
-      }
+      } //finally {
+        // if (engine != null) {
+        //     try {
+        //         engine.shutdown();
+        //     } catch (InterruptedException e) {
+        //         System.err.println("Failed to shut down the executor.");
+        //         Thread.currentThread().interrupt();
+        //     }
+        //}
+      //}
 
 
     }

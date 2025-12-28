@@ -1,11 +1,12 @@
 package spl.lae;
 
-import parser.*;
-import memory.*;
-import scheduling.*;
-
 import java.util.LinkedList;
 import java.util.List;
+
+import memory.SharedMatrix;
+import parser.ComputationNode;
+import parser.ComputationNodeType;
+import scheduling.TiredExecutor;
 
 public class LinearAlgebraEngine {
 
@@ -39,7 +40,7 @@ public class LinearAlgebraEngine {
         
         List<Runnable> lst;
         switch (node.getNodeType()) {
-            case ComputationNodeType.ADD:
+            case ADD:
                 if(node.getChildren().size()<2)
                     throw new IllegalArgumentException("add node has less than 2 operands");
                 leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
@@ -49,7 +50,7 @@ public class LinearAlgebraEngine {
                 node.resolve(leftMatrix.readRowMajor());
                 break;
             
-            case ComputationNodeType.MULTIPLY:
+            case MULTIPLY:
                 if(node.getChildren().size()<2)
                     throw new IllegalArgumentException("mult node has less than 2 operands");
                 leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
@@ -59,7 +60,7 @@ public class LinearAlgebraEngine {
                 node.resolve(leftMatrix.readRowMajor());
                 break;
 
-            case ComputationNodeType.NEGATE:
+            case NEGATE:
                 if(node.getChildren().size()>1)
                     throw new IllegalArgumentException("negation node has more than 1 operands");
                 leftMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());//get(0)?
@@ -68,7 +69,7 @@ public class LinearAlgebraEngine {
                 node.resolve(leftMatrix.readRowMajor());
                 break;
             
-            case ComputationNodeType.TRANSPOSE:
+            case TRANSPOSE:
                 if(node.getChildren().size()>1)
                     throw new IllegalArgumentException("transpose node has more than 1 operands");
                 leftMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());//get 0?
@@ -77,7 +78,7 @@ public class LinearAlgebraEngine {
                 node.resolve(leftMatrix.readRowMajor());
                 break;
 
-            case ComputationNodeType.MATRIX:
+            case MATRIX:
                 throw new IllegalArgumentException("node is already solved");
         }
     }
