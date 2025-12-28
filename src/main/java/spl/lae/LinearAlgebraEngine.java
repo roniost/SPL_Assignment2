@@ -30,6 +30,15 @@ public class LinearAlgebraEngine {
                 loadAndCompute(n);
         }
         return computationRoot;
+        ComputationNode n;
+        while(computationRoot.getNodeType()!=ComputationNodeType.MATRIX) {
+            n = computationRoot.findResolvable();
+            if(n.getChildren().size()>2)
+                n.associativeNesting();
+            else
+                loadAndCompute(n);
+        }
+        return computationRoot;
     }
 
     public void loadAndCompute(ComputationNode node) {
@@ -111,6 +120,7 @@ public class LinearAlgebraEngine {
             int index = i;
             e = () -> leftMatrix.get(index).vecMatMul(rightMatrix);
             lst.add(e);
+            lst.add(e);
         }
         return lst;
     }
@@ -120,7 +130,9 @@ public class LinearAlgebraEngine {
         List<Runnable> lst = new LinkedList<>();
         Runnable e;
         for(int i=0;i<leftMatrix.length();i++) {
+        for(int i=0;i<leftMatrix.length();i++) {
             int index = i;
+            e = () -> {leftMatrix.get(index).negate();};
             e = () -> {leftMatrix.get(index).negate();};
             lst.add(e);
         }
@@ -132,7 +144,9 @@ public class LinearAlgebraEngine {
         List<Runnable> lst = new LinkedList<>();
         Runnable e;
         for(int i=0;i<leftMatrix.length();i++) {
+        for(int i=0;i<leftMatrix.length();i++) {
             int index = i;
+            e = () -> {leftMatrix.get(index).transpose();};
             e = () -> {leftMatrix.get(index).transpose();};
             lst.add(e);
         }
@@ -141,6 +155,7 @@ public class LinearAlgebraEngine {
 
     public String getWorkerReport() {
         // TODO: return summary of worker activity
+        return executor.getWorkerReport();
         return executor.getWorkerReport();
     }
 }
