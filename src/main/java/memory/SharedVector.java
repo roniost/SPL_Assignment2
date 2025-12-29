@@ -13,7 +13,7 @@ public class SharedVector {
         if(vector.length == 0)
             throw new IllegalArgumentException("empty vector");
         this.vector = vector;
-        this.orientation = VectorOrientation.ROW_MAJOR;
+        this.orientation = orientation;
     }
 
     public double get(int index) {
@@ -55,14 +55,14 @@ public class SharedVector {
 
     public void transpose() {
         // TODO: transpose vector
-        writeLock();
+        //writeLock();
         try {
             if(orientation == VectorOrientation.ROW_MAJOR)
                 orientation = VectorOrientation.COLUMN_MAJOR;
             orientation = VectorOrientation.ROW_MAJOR;
         }
         finally {
-            writeUnlock();
+            //writeUnlock();
         }
     }
 
@@ -70,34 +70,34 @@ public class SharedVector {
         // TODO: add two vectors
         if(length() != other.length())
             throw new IllegalArgumentException("vectors not the same length");
-        readLock();
-        other.readLock();
+        //readLock();
+        //other.readLock();
         try {
         double[] res = new double[vector.length];
         for(int i=0;i<vector.length;i++)
             res[i] = get(i) + other.get(i);
-        other.readUnlock();
-        readUnlock();
-        writeLock();
+        //other.readUnlock();
+        //readUnlock();
+        //writeLock();
         vector = res;
-        writeUnlock();
+        //writeUnlock();
         }
         finally {
-            other.readUnlock();
-            readUnlock();
-            writeUnlock();
+            //other.readUnlock();
+            //readUnlock();
+            //writeUnlock();
         }
     }
 
     public void negate() {
         // TODO: negate vector
-        writeLock();
+        //writeLock();
         try {
         for(int i=0;i<vector.length;i++)
             vector[i] = -vector[i];
         }
         finally {
-            writeUnlock();
+            //writeUnlock();
         }
     }
 
@@ -107,22 +107,22 @@ public class SharedVector {
         if(length() != other.length())
             throw new IllegalArgumentException("vectors not the same length");
         if(getOrientation()==VectorOrientation.COLUMN_MAJOR || other.getOrientation()==VectorOrientation.ROW_MAJOR)
-            throw new IllegalArgumentException("vectors with same orientation cannot be multiplied");
+            throw new IllegalArgumentException("vectors are not in row · column orientation" + other.getOrientation().toString());
         }
-        readLock();
-        other.readLock();
+        //readLock();
+        //other.readLock();
         try {
             double val = 0.0;
             for(int i=0;i<vector.length;i++) {
                 val += get(i)*other.get(i);
             }
-            other.readUnlock();
-            readUnlock();
+            //other.readUnlock();
+            //readUnlock();
             return val;
         }
         finally {
-            other.readUnlock();
-            readUnlock();
+            //other.readUnlock();
+            //readUnlock();
         }
     }
 
@@ -131,30 +131,30 @@ public class SharedVector {
         {//errors
         if(getOrientation()!=VectorOrientation.ROW_MAJOR)
             throw new IllegalAccessError("this is not a row vector");
-        if(matrix.getOrientation()==getOrientation())
+        if(matrix.getOrientation()==VectorOrientation.ROW_MAJOR)
             if(length()!=matrix.length())
                 throw new IllegalArgumentException("matrix and vector arnt of compatable size for multiplication");
-        if(length()!=matrix.get(0).length())
+        else if(length()!=matrix.get(0).length())
             throw new IllegalArgumentException("matrix and vector arnt of compatable size for multiplication");
         }
         
         try {
-            double[][] copyMat = matrix.readRowMajor();
             if(matrix.getOrientation()==VectorOrientation.ROW_MAJOR)
-                matrix.loadColumnMajor(copyMat);
+                throw new IllegalArgumentException("matrix is in ROW MAJOR");
+                //matrix.loadColumnMajor(matrix.readRowMajor());
 
-            double[] vec = new double[length()];
-            readLock();
+            double[] vec = new double[matrix.length()];
+            //readLock();
             for(int i=0;i<length();i++) {
-                vec[i] = dot(matrix.get(i));
+                vec[i] = this.dot(matrix.get(i));
             }
-            readUnlock();
-            writeLock();
+            //readUnlock();
+            //writeLock();
             vector = vec;
         }
         finally {
-            readUnlock();
-            writeUnlock();
+            //readUnlock();
+            //writeUnlock();
         }
     }
 }

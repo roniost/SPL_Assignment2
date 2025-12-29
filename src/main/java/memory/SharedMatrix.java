@@ -19,20 +19,20 @@ public class SharedMatrix {
 
     public void loadRowMajor(double[][] matrix) {
         // TODO: replace internal data with new row-major matrix
-        if(getOrientation()==VectorOrientation.ROW_MAJOR) return;
+        //if(getOrientation()==VectorOrientation.ROW_MAJOR) return;
         SharedVector[] newmatrix = new SharedVector[matrix.length];
         for(int i=0;i<matrix.length;i++) {
             newmatrix[i] = new SharedVector(matrix[i], VectorOrientation.ROW_MAJOR);
         }
-        acquireAllVectorWriteLocks(newmatrix);
+        //acquireAllVectorWriteLocks(newmatrix);
         vectors = newmatrix;
-        releaseAllVectorWriteLocks(newmatrix);
+        //releaseAllVectorWriteLocks(newmatrix);
     }
 
     public void loadColumnMajor(double[][] matrix) {
         // TODO: replace internal data with new column-major matrix
-        if(getOrientation()==VectorOrientation.COLUMN_MAJOR) return;
-        acquireAllVectorReadLocks(vectors);
+        //if(getOrientation()==VectorOrientation.COLUMN_MAJOR) return;
+        //acquireAllVectorReadLocks(vectors);
         SharedVector[] newmatrix = new SharedVector[matrix[0].length];
         double[] vec = new double[matrix.length];
         for(int i=0;i<matrix[0].length;i++) {
@@ -41,10 +41,10 @@ public class SharedMatrix {
             }
             newmatrix[i] = new SharedVector(vec, VectorOrientation.COLUMN_MAJOR);
         }
-        releaseAllVectorReadLocks(newmatrix);
-        acquireAllVectorWriteLocks(newmatrix);
+        //releaseAllVectorReadLocks(newmatrix);
+        //acquireAllVectorWriteLocks(newmatrix);
         vectors = newmatrix;
-        releaseAllVectorWriteLocks(newmatrix);
+        //releaseAllVectorWriteLocks(newmatrix);
     }
 
     public double[][] readRowMajor() {

@@ -2,6 +2,7 @@ package spl.lae;
 import java.io.IOException;
 import java.text.ParseException;
 
+import memory.SharedMatrix;
 import parser.*;
 
 public class Main {
@@ -29,7 +30,7 @@ public class Main {
         OutputWriter.write(resultMatrix, outputFile);
         System.out.println("Computation completed successfully. Result written to " + outputFile);
       }
-      catch (ParseException | IOException | IllegalArgumentException e) {
+      catch (/*ParseException |*/ IOException | IllegalArgumentException e) {
         System.out.println("Error: " + e.getMessage());
         try {
             OutputWriter.write(e.getMessage(), outputFile);

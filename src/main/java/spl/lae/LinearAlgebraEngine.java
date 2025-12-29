@@ -42,8 +42,8 @@ public class LinearAlgebraEngine {
             case ADD:
                 if(node.getChildren().size()<2)
                     throw new IllegalArgumentException("add node has less than 2 operands");
-                leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
-                rightMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());
+                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix());
+                rightMatrix.loadRowMajor(node.getChildren().get(1).getMatrix());
                 lst = createAddTasks();
                 executor.submitAll(lst);
                 node.resolve(leftMatrix.readRowMajor());
@@ -52,8 +52,8 @@ public class LinearAlgebraEngine {
             case MULTIPLY:
                 if(node.getChildren().size()<2)
                     throw new IllegalArgumentException("mult node has less than 2 operands");
-                leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
-                rightMatrix = new SharedMatrix(node.getChildren().get(1).getMatrix());
+                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix());
+                rightMatrix.loadColumnMajor(node.getChildren().get(1).getMatrix());
                 lst = createMultiplyTasks();
                 executor.submitAll(lst);
                 node.resolve(leftMatrix.readRowMajor());
@@ -62,7 +62,7 @@ public class LinearAlgebraEngine {
             case NEGATE:
                 if(node.getChildren().size()>1)
                     throw new IllegalArgumentException("negation node has more than 1 operands");
-                leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
+                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix());
                 lst = createNegateTasks();
                 executor.submitAll(lst);
                 node.resolve(leftMatrix.readRowMajor());
@@ -71,7 +71,7 @@ public class LinearAlgebraEngine {
             case TRANSPOSE:
                 if(node.getChildren().size()>1)
                     throw new IllegalArgumentException("transpose node has more than 1 operands");
-                leftMatrix = new SharedMatrix(node.getChildren().get(0).getMatrix());
+                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix());
                 lst = createTransposeTasks();
                 executor.submitAll(lst);
                 node.resolve(leftMatrix.readRowMajor());
@@ -84,8 +84,6 @@ public class LinearAlgebraEngine {
 
     public List<Runnable> createAddTasks() {
         // TODO: return tasks that perform row-wise addition
-        leftMatrix.loadRowMajor(leftMatrix.readRowMajor());
-        rightMatrix.loadRowMajor(rightMatrix.readRowMajor()); //gem says redundant
         if(leftMatrix.length()!=rightMatrix.length() || leftMatrix.get(0).length()!=rightMatrix.get(0).length())
             throw new IllegalArgumentException("matricies are not of the same size");
         List<Runnable> lst = new LinkedList<>();
@@ -100,10 +98,14 @@ public class LinearAlgebraEngine {
 
     public List<Runnable> createMultiplyTasks() {
         // TODO: return tasks that perform row × matrix multiplication
-        leftMatrix.loadRowMajor(leftMatrix.readRowMajor());
-        rightMatrix.loadColumnMajor(rightMatrix.readRowMajor()); //gem says redundant
+        {//errors
         if(leftMatrix.get(0).length()!=rightMatrix.get(0).length())
             throw new IllegalArgumentException("matricies are not of compatable size for multiplication");
+        if(leftMatrix.getOrientation()!=VectorOrientation.ROW_MAJOR)
+            throw new IllegalArgumentException("left is not in ROW MAJOR");
+        //if(rightMatrix.getOrientation()!=VectorOrientation.COLUMN_MAJOR)
+        //    throw new IllegalArgumentException("right is not in COLUMN MAJOR");
+        }
         List<Runnable> lst = new LinkedList<>();
         Runnable e;
         for(int i=0;i<leftMatrix.length();i++) {
