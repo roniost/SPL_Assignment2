@@ -27,11 +27,10 @@ public class SharedMatrix {
     }
 
     public void loadColumnMajor(double[][] matrix) {
-        //if(getOrientation()==VectorOrientation.COLUMN_MAJOR) return;
         //acquireAllVectorReadLocks(vectors);
         SharedVector[] newmatrix = new SharedVector[matrix[0].length];
-        double[] vec = new double[matrix.length];
         for(int i=0;i<matrix[0].length;i++) {
+            double[] vec = new double[matrix.length];
             for(int j=0;j<matrix.length;j++) {
                 vec[j] = matrix[j][i];
             }

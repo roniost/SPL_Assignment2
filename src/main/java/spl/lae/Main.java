@@ -28,9 +28,11 @@ public class Main {
         double[][] resultMatrix = resultNode.getMatrix();
         OutputWriter.write(resultMatrix, outputFile);
         System.out.println("Computation completed successfully. Result written to " + outputFile);
+        System.out.println(engine.getWorkerReport());
       }
       catch (/*ParseException |*/ IOException | IllegalArgumentException e) {
         System.out.println("Error: " + e.getMessage());
+        System.out.println(e.getStackTrace());
         try {
             OutputWriter.write(e.getMessage(), outputFile);
         }

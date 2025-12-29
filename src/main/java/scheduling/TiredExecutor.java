@@ -75,10 +75,10 @@ public class TiredExecutor {
     public synchronized String getWorkerReport() {
         StringBuilder report = new StringBuilder();
         for (TiredThread worker : workers) {
-            report.append("Worker ").append(worker.getWorkerId())
-                  .append(" - Fatigue: ").append(worker.getFatigue())
-                  .append("- Idle:").append(worker.getTimeIdle())
-                  .append("ms - Work:").append(worker.getTimeUsed()).append("ms\n");
+            report.append("Worker " + worker.getWorkerId() + ":\n")
+                  .append(" - Fatigue: " + worker.getFatigue() + "\n")
+                  .append(" - Idle:" + worker.getTimeIdle() + "ms\n")
+                  .append(" - Work:" + worker.getTimeUsed() + "ms\n");
     }
     return report.toString();
     }

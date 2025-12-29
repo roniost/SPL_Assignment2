@@ -4,7 +4,6 @@ import parser.*;
 import memory.*;
 import scheduling.*;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class LinearAlgebraEngine {
@@ -18,15 +17,24 @@ public class LinearAlgebraEngine {
     }
 
     public ComputationNode run(ComputationNode computationRoot) {
-        ComputationNode n;
-        while(computationRoot.getNodeType()!=ComputationNodeType.MATRIX) {
-            n = computationRoot.findResolvable();
-            if(n.getChildren().size()>2)
-                n.associativeNesting();
-            else
-                loadAndCompute(n);
+        try {
+            while(computationRoot.getNodeType()!=ComputationNodeType.MATRIX) {
+                ComputationNode n = computationRoot.findResolvable();
+                if(n.getChildren().size()>2)
+                    n.associativeNesting();
+                else
+                    loadAndCompute(n);
+            }
+            return computationRoot;
         }
-        return computationRoot;
+        finally {
+            try {
+                executor.shutdown();
+            }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     public void loadAndCompute(ComputationNode node) {
@@ -81,7 +89,7 @@ public class LinearAlgebraEngine {
     public List<Runnable> createAddTasks() {
         if(leftMatrix.length()!=rightMatrix.length() || leftMatrix.get(0).length()!=rightMatrix.get(0).length())
             throw new IllegalArgumentException("matricies are not of the same size");
-        List<Runnable> lst = new LinkedList<>();
+        java.util.List<Runnable> lst = new java.util.LinkedList<>();
         Runnable e;
         for(int i=0;i<leftMatrix.length();i++) {
             int index = i;
@@ -93,14 +101,15 @@ public class LinearAlgebraEngine {
 
     public List<Runnable> createMultiplyTasks() {
         {//errors
-        if(leftMatrix.get(0).length()!=rightMatrix.get(0).length())
-            throw new IllegalArgumentException("matricies are not of compatable size for multiplication");
-        if(leftMatrix.getOrientation()!=VectorOrientation.ROW_MAJOR)
-            throw new IllegalArgumentException("left is not in ROW MAJOR");
-        //if(rightMatrix.getOrientation()!=VectorOrientation.COLUMN_MAJOR)
-        //    throw new IllegalArgumentException("right is not in COLUMN MAJOR");
+            if(leftMatrix.getOrientation()!=VectorOrientation.ROW_MAJOR)
+                throw new IllegalArgumentException("left is not in ROW MAJOR");
+            if(rightMatrix.getOrientation()!=VectorOrientation.COLUMN_MAJOR)
+                throw new IllegalArgumentException("right is not in COLUMN MAJOR");
+            if(leftMatrix.get(0).length()!=rightMatrix.get(0).length()) {
+                throw new IllegalArgumentException("matricies are not of compatable size for multiplication");
+            }
         }
-        List<Runnable> lst = new LinkedList<>();
+        java.util.List<Runnable> lst = new java.util.LinkedList<>();
         Runnable e;
         for(int i=0;i<leftMatrix.length();i++) {
             int index = i;
@@ -111,7 +120,7 @@ public class LinearAlgebraEngine {
     }
 
     public List<Runnable> createNegateTasks() {
-        List<Runnable> lst = new LinkedList<>();
+        java.util.List<Runnable> lst = new java.util.LinkedList<>();
         Runnable e;
         for(int i=0;i<leftMatrix.length();i++) {
             int index = i;
@@ -122,7 +131,7 @@ public class LinearAlgebraEngine {
     }
 
     public List<Runnable> createTransposeTasks() {
-        List<Runnable> lst = new LinkedList<>();
+        java.util.List<Runnable> lst = new java.util.LinkedList<>();
         Runnable e;
         for(int i=0;i<leftMatrix.length();i++) {
             int index = i;

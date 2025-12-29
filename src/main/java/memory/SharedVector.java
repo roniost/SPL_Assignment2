@@ -50,7 +50,8 @@ public class SharedVector {
         try {
             if(orientation == VectorOrientation.ROW_MAJOR)
                 orientation = VectorOrientation.COLUMN_MAJOR;
-            orientation = VectorOrientation.ROW_MAJOR;
+            else
+                orientation = VectorOrientation.ROW_MAJOR;
         }
         finally {
             //writeUnlock();
@@ -132,7 +133,7 @@ public class SharedVector {
 
             double[] vec = new double[matrix.length()];
             //readLock();
-            for(int i=0;i<length();i++) {
+            for(int i=0;i<matrix.length();i++) {
                 vec[i] = this.dot(matrix.get(i));
             }
             //readUnlock();
