@@ -9,7 +9,6 @@ public class SharedVector {
     private ReadWriteLock lock = new java.util.concurrent.locks.ReentrantReadWriteLock();
 
     public SharedVector(double[] vector, VectorOrientation orientation) {
-        // TODO: store vector data and its orientation
         if(vector.length == 0)
             throw new IllegalArgumentException("empty vector");
         this.vector = vector;
@@ -17,44 +16,36 @@ public class SharedVector {
     }
 
     public double get(int index) {
-        // TODO: return element at index (read-locked)
         if(index>=vector.length || index<0)
             throw new IllegalArgumentException("index out of bounds");
         return vector[index];
     }
 
     public int length() {
-        // TODO: return vector length
         return vector.length;
     }
 
     public VectorOrientation getOrientation() {
-        // TODO: return vector orientation
         return this.orientation;
     }
 
     public void writeLock() {
-        // TODO: acquire write lock
         lock.writeLock().lock();
     }
 
     public void writeUnlock() {
-        // TODO: release write lock
         lock.writeLock().unlock();
     }
 
     public void readLock() {
-        // TODO: acquire read lock
         lock.readLock().lock();
     }
 
     public void readUnlock() {
-        // TODO: release read lock
         lock.readLock().unlock();
     }
 
     public void transpose() {
-        // TODO: transpose vector
         //writeLock();
         try {
             if(orientation == VectorOrientation.ROW_MAJOR)
@@ -67,7 +58,6 @@ public class SharedVector {
     }
 
     public void add(SharedVector other) {
-        // TODO: add two vectors
         if(length() != other.length())
             throw new IllegalArgumentException("vectors not the same length");
         //readLock();
@@ -90,7 +80,6 @@ public class SharedVector {
     }
 
     public void negate() {
-        // TODO: negate vector
         //writeLock();
         try {
         for(int i=0;i<vector.length;i++)
@@ -102,7 +91,6 @@ public class SharedVector {
     }
 
     public double dot(SharedVector other) {
-        // TODO: compute dot product (row · column)
         {//errors
         if(length() != other.length())
             throw new IllegalArgumentException("vectors not the same length");
@@ -127,7 +115,6 @@ public class SharedVector {
     }
 
     public void vecMatMul(SharedMatrix matrix) {
-        // TODO: compute row-vector × matrix
         {//errors
         if(getOrientation()!=VectorOrientation.ROW_MAJOR)
             throw new IllegalAccessError("this is not a row vector");

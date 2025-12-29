@@ -7,7 +7,6 @@ import parser.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-      // TODO: main
       if (args.length != 3) {
             System.out.println("Error: Invalid arguments.");
             System.out.println("Usage: java Assignment2 <num_threads> <input_json> <output_file>");

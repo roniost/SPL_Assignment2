@@ -67,8 +67,7 @@ public class TiredExecutor {
     public void shutdown() throws InterruptedException {
         for (TiredThread worker : workers) {
            if (worker!=null) {
-            worker.shutdown();
-            
+                worker.shutdown();
            }
         }
     }

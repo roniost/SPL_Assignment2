@@ -14,12 +14,10 @@ public class LinearAlgebraEngine {
     private TiredExecutor executor;
 
     public LinearAlgebraEngine(int numThreads) {
-        // TODO: create executor with given thread count
         executor = new TiredExecutor(numThreads);
     }
 
     public ComputationNode run(ComputationNode computationRoot) {
-        // TODO: resolve computation tree step by step until final matrix is produced
         ComputationNode n;
         while(computationRoot.getNodeType()!=ComputationNodeType.MATRIX) {
             n = computationRoot.findResolvable();
@@ -32,8 +30,6 @@ public class LinearAlgebraEngine {
     }
 
     public void loadAndCompute(ComputationNode node) {
-        // TODO: load operand matrices
-        // TODO: create compute tasks & submit tasks to executor
         if(node.getChildren().size()>2)
             throw new IllegalArgumentException("node has more than 2 operands");
         
@@ -83,7 +79,6 @@ public class LinearAlgebraEngine {
     }
 
     public List<Runnable> createAddTasks() {
-        // TODO: return tasks that perform row-wise addition
         if(leftMatrix.length()!=rightMatrix.length() || leftMatrix.get(0).length()!=rightMatrix.get(0).length())
             throw new IllegalArgumentException("matricies are not of the same size");
         List<Runnable> lst = new LinkedList<>();
@@ -97,7 +92,6 @@ public class LinearAlgebraEngine {
     }
 
     public List<Runnable> createMultiplyTasks() {
-        // TODO: return tasks that perform row × matrix multiplication
         {//errors
         if(leftMatrix.get(0).length()!=rightMatrix.get(0).length())
             throw new IllegalArgumentException("matricies are not of compatable size for multiplication");
@@ -117,7 +111,6 @@ public class LinearAlgebraEngine {
     }
 
     public List<Runnable> createNegateTasks() {
-        // TODO: return tasks that negate rows
         List<Runnable> lst = new LinkedList<>();
         Runnable e;
         for(int i=0;i<leftMatrix.length();i++) {
@@ -129,7 +122,6 @@ public class LinearAlgebraEngine {
     }
 
     public List<Runnable> createTransposeTasks() {
-        // TODO: return tasks that transpose rows
         List<Runnable> lst = new LinkedList<>();
         Runnable e;
         for(int i=0;i<leftMatrix.length();i++) {
@@ -141,7 +133,6 @@ public class LinearAlgebraEngine {
     }
 
     public String getWorkerReport() {
-        // TODO: return summary of worker activity
         return executor.getWorkerReport();
     }
 }
