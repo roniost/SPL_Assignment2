@@ -11,6 +11,7 @@ public class SharedVector {
     public SharedVector(double[] vector, VectorOrientation orientation) {
         if(vector.length == 0)
             throw new IllegalArgumentException("empty vector");
+        
         this.vector = vector;
         this.orientation = orientation;
     }
@@ -46,49 +47,25 @@ public class SharedVector {
     }
 
     public void transpose() {
-        //writeLock();
-        try {
-            if(orientation == VectorOrientation.ROW_MAJOR)
-                orientation = VectorOrientation.COLUMN_MAJOR;
-            else
-                orientation = VectorOrientation.ROW_MAJOR;
-        }
-        finally {
-            //writeUnlock();
-        }
+        if(orientation == VectorOrientation.ROW_MAJOR)
+            orientation = VectorOrientation.COLUMN_MAJOR;
+        else
+            orientation = VectorOrientation.ROW_MAJOR;
     }
 
     public void add(SharedVector other) {
         if(length() != other.length())
             throw new IllegalArgumentException("vectors not the same length");
-        //readLock();
-        //other.readLock();
-        try {
+
         double[] res = new double[vector.length];
         for(int i=0;i<vector.length;i++)
             res[i] = get(i) + other.get(i);
-        //other.readUnlock();
-        //readUnlock();
-        //writeLock();
         vector = res;
-        //writeUnlock();
-        }
-        finally {
-            //other.readUnlock();
-            //readUnlock();
-            //writeUnlock();
-        }
     }
 
     public void negate() {
-        //writeLock();
-        try {
         for(int i=0;i<vector.length;i++)
             vector[i] = -vector[i];
-        }
-        finally {
-            //writeUnlock();
-        }
     }
 
     public double dot(SharedVector other) {
@@ -98,21 +75,12 @@ public class SharedVector {
         if(getOrientation()==VectorOrientation.COLUMN_MAJOR || other.getOrientation()==VectorOrientation.ROW_MAJOR)
             throw new IllegalArgumentException("vectors are not in row · column orientation" + other.getOrientation().toString());
         }
-        //readLock();
-        //other.readLock();
-        try {
-            double val = 0.0;
-            for(int i=0;i<vector.length;i++) {
-                val += get(i)*other.get(i);
-            }
-            //other.readUnlock();
-            //readUnlock();
-            return val;
+
+        double val = 0.0;
+        for(int i=0;i<vector.length;i++) {
+            val += get(i)*other.get(i);
         }
-        finally {
-            //other.readUnlock();
-            //readUnlock();
-        }
+        return val;
     }
 
     public void vecMatMul(SharedMatrix matrix) {
@@ -125,24 +93,13 @@ public class SharedVector {
         else if(length()!=matrix.get(0).length())
             throw new IllegalArgumentException("matrix and vector arnt of compatable size for multiplication");
         }
-        
-        try {
-            if(matrix.getOrientation()==VectorOrientation.ROW_MAJOR)
-                throw new IllegalArgumentException("matrix is in ROW MAJOR");
-                //matrix.loadColumnMajor(matrix.readRowMajor());
 
-            double[] vec = new double[matrix.length()];
-            //readLock();
-            for(int i=0;i<matrix.length();i++) {
-                vec[i] = this.dot(matrix.get(i));
-            }
-            //readUnlock();
-            //writeLock();
-            vector = vec;
+        if(matrix.getOrientation()==VectorOrientation.ROW_MAJOR)
+            throw new IllegalArgumentException("matrix is in ROW MAJOR");
+        double[] vec = new double[matrix.length()];
+        for(int i=0;i<matrix.length();i++) {
+            vec[i] = this.dot(matrix.get(i));
         }
-        finally {
-            //readUnlock();
-            //writeUnlock();
-        }
+        vector = vec;
     }
 }

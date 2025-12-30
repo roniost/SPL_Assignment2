@@ -79,7 +79,19 @@ public class TiredExecutor {
                   .append(" - Fatigue: " + worker.getFatigue() + "\n")
                   .append(" - Idle:" + worker.getTimeIdle() + "ms\n")
                   .append(" - Work:" + worker.getTimeUsed() + "ms\n");
+        }
+        report.append("\nTotal Fairness: " + getFairness());
+        return report.toString();
     }
-    return report.toString();
+
+    public synchronized double getFairness() {
+        double fairness = 0.0;
+        double avg = 0.0;
+        for(TiredThread worker : workers)
+            avg += worker.getFatigue();
+        avg = avg/workers.length;
+        for(TiredThread worker : workers)
+            fairness += Math.pow(worker.getFatigue() - avg,2);
+        return fairness;
     }
 }
