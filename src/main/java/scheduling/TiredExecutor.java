@@ -77,8 +77,8 @@ public class TiredExecutor {
         for (TiredThread worker : workers) {
             report.append("Worker " + worker.getWorkerId() + ":\n")
                   .append(" - Fatigue: " + worker.getFatigue() + "\n")
-                  .append(" - Idle:" + worker.getTimeIdle() + "ms\n")
-                  .append(" - Work:" + worker.getTimeUsed() + "ms\n");
+                  .append(" - Idle:" + worker.getTimeIdle()/1000000.0 + "ms\n")
+                  .append(" - Work:" + worker.getTimeUsed()/1000000.0 + "ms\n");
         }
         report.append("\nTotal Fairness: " + getFairness());
         return report.toString();
